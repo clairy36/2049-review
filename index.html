@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>《2049》互动书评</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--ink:#1a1a18;--ink2:#4a4a44;--ink3:#8a8a82;--paper:#faf9f5;--cream:#f0ede4;--line:#ddd9ce;--gold:#b8943a;--gold-bg:#fdf7ea;--blue:#1e3a6e;--blue-l:#dde8f8;--green:#1e5c38;--green-l:#daf0e6;}
+body{background:var(--paper);color:var(--ink);font-family:'Noto Serif SC',serif;min-height:100vh;max-width:700px;margin:0 auto}
+.hdr{padding:2.25rem 1.75rem 1.5rem;border-bottom:2.5px solid var(--ink)}
+.hdr-eye{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.2em;color:var(--ink3);margin-bottom:10px}
+.hdr-t{font-size:26px;font-weight:600;line-height:1.25}
+.hdr-t em{color:var(--gold);font-style:normal}
+.hdr-by{font-size:11px;color:var(--ink3);margin-top:10px;font-family:'Space Mono',monospace;line-height:1.8}
+.nav{display:flex;background:var(--cream);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}
+.nb{flex:1;padding:14px 4px;font-size:10.5px;font-family:'Space Mono',monospace;background:none;border:none;color:var(--ink3);cursor:pointer;border-bottom:2.5px solid transparent;transition:all .2s;letter-spacing:.04em}
+.nb.on{color:var(--ink);border-bottom-color:var(--gold);background:var(--paper)}
+.nb:hover:not(.on){color:var(--ink2)}
+.panel{display:none;padding:1.75rem}
+.panel.on{display:block;animation:up .3s ease}
+@keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.sl{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.15em;color:var(--gold);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.sl::after{content:'';flex:1;height:1px;background:var(--line)}
+.m-intro{font-size:13px;color:var(--ink2);line-height:1.8;margin-bottom:1.5rem;padding:14px 16px;border-left:3px solid var(--gold);background:var(--gold-bg);border-radius:0 4px 4px 0}
+.mc{border:1px solid var(--line);border-radius:8px;padding:1.1rem 1.25rem;margin-bottom:14px;background:var(--paper)}
+.mc-claim{font-size:13.5px;font-weight:500;color:var(--ink);line-height:1.6;margin-bottom:4px}
+.mc-src{font-size:10px;color:var(--ink3);font-family:'Space Mono',monospace;margin-bottom:14px}
+.m-row{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+.m-who{font-size:10px;font-family:'Space Mono',monospace;width:28px;flex-shrink:0}
+.m-track{flex:1;height:8px;background:var(--cream);border-radius:4px;border:1px solid var(--line);overflow:hidden}
+.m-fill{height:100%;border-radius:4px;transition:width .55s ease}
+.m-pct{font-size:11px;font-family:'Space Mono',monospace;width:36px;text-align:right;flex-shrink:0;font-weight:700}
+.kk-locked{flex:1;height:8px;background:repeating-linear-gradient(90deg,var(--line) 0,var(--line) 5px,transparent 5px,transparent 10px);border-radius:4px;border:1px solid var(--line)}
+.hint-txt{font-size:10px;color:var(--ink3);font-family:'Space Mono',monospace;margin-bottom:4px}
+input[type=range]{width:100%;accent-color:var(--gold);cursor:pointer;margin:2px 0}
+.m-diff{font-size:12.5px;margin-top:10px;padding:9px 13px;border-radius:5px;line-height:1.6;display:none}
+.m-diff.ag{background:var(--green-l);color:var(--green)}
+.m-diff.hi{background:var(--blue-l);color:var(--blue)}
+.m-diff.lo{background:var(--gold-bg);color:#7a5a10}
+.leg{margin-top:1.25rem;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink3);font-family:'Space Mono',monospace}
+.ld{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.r-intro{font-size:13px;color:var(--ink2);line-height:1.85;margin-bottom:1.5rem;padding-bottom:1.25rem;border-bottom:1px solid var(--line)}
+.tc{border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:12px}
+.th{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;transition:background .15s;user-select:none}
+.th:hover{background:var(--cream)}
+.th-l{display:flex;align-items:center;gap:12px}
+.th-ic{width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.th-nm{font-size:14px;font-weight:600;color:var(--ink)}
+.th-tg{font-size:10px;color:var(--ink3);font-family:'Space Mono',monospace;margin-top:2px}
+.th-ar{font-size:11px;color:var(--ink3);transition:transform .25s;flex-shrink:0}
+.tb{display:none;border-top:1px solid var(--line);background:var(--paper)}
+.tb.open{display:block;animation:up .2s ease}
+.ch-ul{list-style:none;padding:12px 16px 4px}
+.ch-li{display:flex;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line);font-size:13px;color:var(--ink2);line-height:1.5}
+.ch-li:last-child{border-bottom:none}
+.ch-n{font-family:'Space Mono',monospace;font-size:9px;color:var(--gold);padding-top:3px;min-width:24px;flex-shrink:0}
+.rv{margin:10px 16px 16px;padding:14px;border-radius:6px;font-size:13px;line-height:1.9}
+.rv.empty{background:var(--cream);border:1px dashed var(--line);color:var(--ink3);font-style:italic}
+.rv.filled{background:var(--paper);border:1px solid var(--line);color:var(--ink2)}
+.sc-form{background:var(--cream);border:1px solid var(--line);border-radius:8px;padding:1.5rem;margin-bottom:1.25rem}
+.fl{font-size:10.5px;font-family:'Space Mono',monospace;color:var(--ink3);margin-bottom:6px;letter-spacing:.05em}
+.fi{width:100%;padding:10px 13px;font-size:13.5px;font-family:'Noto Serif SC',serif;background:var(--paper);border:1px solid var(--line);border-radius:5px;color:var(--ink);outline:none;transition:border-color .2s}
+.fi:focus{border-color:var(--gold)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fr{margin-bottom:14px}
+.gen-btn{width:100%;padding:13px;font-size:13px;font-family:'Space Mono',monospace;letter-spacing:.08em;background:var(--ink);color:var(--paper);border:none;border-radius:5px;cursor:pointer;transition:background .15s;margin-top:4px}
+.gen-btn:hover{background:var(--ink2)}
+.gen-btn:disabled{background:var(--line);color:var(--ink3);cursor:default}
+.sc-out{border:1px solid var(--line);border-radius:8px;overflow:hidden;display:none}
+.sc-out.show{display:block;animation:up .4s ease}
+.sc-hdr{padding:13px 18px;border-bottom:1px solid var(--line);background:var(--cream);display:flex;align-items:baseline;gap:10px}
+.sc-name{font-size:14px;font-weight:600;color:var(--ink)}
+.sc-year{font-family:'Space Mono',monospace;font-size:10px;color:var(--gold)}
+.sc-body{padding:1.5rem;font-size:13.5px;color:var(--ink2);line-height:2;white-space:pre-wrap}
+.sc-loading{padding:2.5rem;text-align:center;font-size:13px;color:var(--ink3);font-family:'Space Mono',monospace}
+.dot{display:inline-block;animation:blink 1.2s infinite}
+.dot:nth-child(2){animation-delay:.2s}
+.dot:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:0}40%{opacity:1}}
+.sc-err{padding:1.25rem;font-size:13px;color:#8a2a2a;background:#f8e8e8;line-height:1.7}
+.retry-btn{display:none;margin:1rem auto 0;padding:9px 22px;font-size:12px;font-family:'Space Mono',monospace;background:none;border:1px solid var(--ink);border-radius:4px;cursor:pointer;color:var(--ink)}
+.retry-btn:hover{background:var(--ink);color:var(--paper)}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="hdr-eye">INTERACTIVE BOOK REVIEW · 互动书评</div>
+  <div class="hdr-t">《2049：未来<em>10000</em>天的可能》</div>
+  <div class="hdr-by">凯文·凯利 著 × 吴晨 编 ／ 中信出版集团 · 2025<br>现在距离2049年还有 <span id="cd" style="color:var(--gold);font-weight:700"></span> 天</div>
+</div>
+<nav class="nav">
+  <button class="nb on" onclick="sw(0)">可能性仪表</button>
+  <button class="nb" onclick="sw(1)">我的书评</button>
+  <button class="nb" onclick="sw(2)">我的2049</button>
+</nav>
+<div class="panel on" id="p0">
+  <div class="sl">METER · 先给出你的判断，再看作者</div>
+  <div class="m-intro">先拖动滑块，给出<strong>你的相信程度</strong>（0% 完全不信 → 100% 坚定相信）。滑动之后才会解锁 KK 在书中的判断。</div>
+  <div id="ml"></div>
+  <div class="leg"><div class="ld" style="background:var(--blue)"></div>我的判断 &nbsp;<div class="ld" style="background:var(--gold)"></div>KK 的判断（滑动后解锁）</div>
+</div>
+<div class="panel" id="p1">
+  <div class="sl">REVIEW · 我的书评</div>
+  <div class="r-intro">这是一本读完会想和人争论的书。KK 的乐观像一束光——照亮了很多可能性，也遮住了一些阴影。以下是我按主题整理的阅读感受，持续更新中。</div>
+  <div id="tg"></div>
+</div>
+<div class="panel" id="p2">
+  <div class="sl">IMAGINE · 你在2049年的一天</div>
+  <div class="sc-form">
+    <div class="fr"><div class="fl">你的职业</div><input class="fi" id="s-job" placeholder="如：金融分析师、律师、教师、设计师..."></div>
+    <div class="row2">
+      <div class="fr"><div class="fl">现在的年龄</div><input class="fi" id="s-age" type="number" placeholder="如：25" min="10" max="80"></div>
+      <div class="fr"><div class="fl">最关心的事</div><input class="fi" id="s-care" placeholder="如：职业发展、家庭..."></div>
+    </div>
+    <button class="gen-btn" id="gen-btn" onclick="generate()">生成我的2049年 →</button>
+  </div>
+  <div class="sc-out" id="sc-out"></div>
+  <button class="retry-btn" id="retry-btn" onclick="resetScene()">重新生成</button>
+</div>
+<script>
+document.getElementById('cd').textContent=Math.floor((new Date('2049-01-01')-new Date())/864e5).toLocaleString();
+function sw(i){document.querySelectorAll('.nb').forEach((b,j)=>b.classList.toggle('on',i===j));document.querySelectorAll('.panel').forEach((p,j)=>p.classList.toggle('on',i===j));}
+const MD=[
+  {c:'智能眼镜将在2035年前全面取代智能手机，成为主流交互设备',s:'镜像世界章节',kk:75},
+  {c:'2049年大多数中层管理岗位消失，AI 完成上传下达与绩效统计',s:'异人智能章节',kk:85},
+  {c:'个性化定制药物（3D 药丸机器）将普及至普通家庭',s:'医疗与生命科学章节',kk:70},
+  {c:'高考将转向考察领导力、冒险精神等 AI 无法替代的能力维度',s:'教育章节',kk:65},
+  {c:'真实自然体验（如荒野旅行）将成为少数人专享的奢侈品',s:'丰沛与稀缺章节',kk:80},
+  {c:'中国将在2049年成为全球游戏、AR 与文化潮流的引领者',s:'酷中国章节',kk:72},
+  {c:'脑机接口将在2049年前进入消费级市场，普通人可自愿使用',s:'脑机接口章节',kk:60},
+];
+const ml=document.getElementById('ml');
+MD.forEach((m,i)=>{
+  const el=document.createElement('div');el.className='mc';
+  el.innerHTML=`<div class="mc-claim">${m.c}</div><div class="mc-src">— ${m.s}</div><div class="m-row"><span class="m-who" style="color:var(--blue)">我</span><div class="m-track"><div class="m-fill" id="my${i}" style="width:0%;background:var(--blue)"></div></div><span class="m-pct" id="mv${i}" style="color:var(--blue)">—</span></div><div class="m-row"><span class="m-who" style="color:var(--gold)">KK</span><div class="kk-locked" id="klb${i}"></div><div class="m-track" id="ktr${i}" style="display:none"><div class="m-fill" id="kf${i}" style="width:0%;background:var(--gold)"></div></div><span class="m-pct" id="kv${i}" style="color:#ccc">?%</span></div><div class="hint-txt">拖动滑块标记你的判断，解锁 KK 的预测</div><input type="range" min="0" max="100" value="50" oninput="um(${i},this.value)"><div class="m-diff" id="md${i}"></div>`;
+  ml.appendChild(el);
+});
+function um(i,v){v=parseInt(v);document.getElementById('my'+i).style.width=v+'%';document.getElementById('mv'+i).textContent=v+'%';document.getElementById('klb'+i).style.display='none';document.getElementById('ktr'+i).style.display='block';setTimeout(()=>{document.getElementById('kf'+i).style.width=MD[i].kk+'%'},50);const kv=document.getElementById('kv'+i);kv.textContent=MD[i].kk+'%';kv.style.color='var(--gold)';const diff=v-MD[i].kk;const d=document.getElementById('md'+i);d.style.display='block';if(Math.abs(diff)<=8){d.className='m-diff ag';d.textContent=`你和 KK 的判断相近（差 ${diff>=0?'+':''}${diff}%），对这条预言有共同信心。`}else if(diff>8){d.className='m-diff hi';d.textContent=`你比 KK 更乐观（+${diff}%）——你看到了他未充分估计的加速因素？`}else{d.className='m-diff lo';d.textContent=`你比 KK 更保守（${diff}%）——对这条预言持有更多质疑，或许有充分理由。`}}
+const TH=[
+  {ic:'🤖',bg:'#dde8f8',fg:'#1e3a6e',nm:'AI 与智能革命',tg:'INTELLIGENCE',chs:[{n:'01',t:'人工智能的演进路径'},{n:'02',t:'类人智能与异人智能'},{n:'03',t:'AI 助理：你的数字分身'}],rv:'',ph:'KK 对「异人智能」的判断——AI 思维方式与人类截然不同，却效率极高。中层消失的预言在你看来有多少现实依据？'},
+  {ic:'🌐',bg:'#daf0e6',fg:'#1e5c38',nm:'镜像世界与数字现实',tg:'MIRROR WORLD',chs:[{n:'04',t:'镜像世界：现实与虚拟叠加'},{n:'05',t:'智能眼镜革命'},{n:'06',t:'互见性与数据伦理'}],rv:'',ph:'智能眼镜取代手机、「互见性」重构数据权力——是真实趋势，还是硅谷式的过度乐观？'},
+  {ic:'🏛️',bg:'#f5e9c8',fg:'#7a5010',nm:'组织、治理与社会',tg:'SOCIETY',chs:[{n:'07',t:'数字治理的新框架'},{n:'08',t:'组织变革：极度扁平化'},{n:'09',t:'内容井喷与注意力稀缺'}],rv:'',ph:'组织扁平化、注意力成为稀缺资源——和你在工作中观察到的趋势吻合吗？'},
+  {ic:'🧬',bg:'#ede8f8',fg:'#3a1e6e',nm:'身体、医疗与生命科学',tg:'LIFE SCIENCE',chs:[{n:'10',t:'定制化医疗与 3D 药物'},{n:'11',t:'脑机接口的伦理边界'},{n:'12',t:'生命科学的下一个百年'}],rv:'',ph:'定制药物和脑机接口——你最期待哪个，最担忧哪个？'},
+  {ic:'📚',bg:'#f8ede8',fg:'#6e2a1e',nm:'教育、文化与「酷中国」',tg:'CULTURE',chs:[{n:'13',t:'教育的个性化与体验化'},{n:'14',t:'内容创作与「总书」形态'},{n:'15',t:'「酷中国」愿景'},{n:'16',t:'后记：塑造未来的勇气'}],rv:'',ph:'「酷中国」——有依据的判断，还是对中国读者的迎合？'},
+];
+const tg=document.getElementById('tg');
+TH.forEach((t,i)=>{
+  const chs=t.chs.map(c=>`<li class="ch-li"><span class="ch-n">${c.n}</span><span>${c.t}</span></li>`).join('');
+  const rv=t.rv?`<div class="rv filled">${t.rv}</div>`:`<div class="rv empty">[待补充] ${t.ph}</div>`;
+  const div=document.createElement('div');div.className='tc';
+  div.innerHTML=`<div class="th" onclick="tog(${i})"><div class="th-l"><div class="th-ic" style="background:${t.bg};color:${t.fg}">${t.ic}</div><div><div class="th-nm">${t.nm}</div><div class="th-tg">${t.tg}</div></div></div><span class="th-ar" id="ar${i}">▼</span></div><div class="tb" id="tb${i}"><ul class="ch-ul">${chs}</ul>${rv}</div>`;
+  tg.appendChild(div);
+});
+function tog(i){const b=document.getElementById('tb'+i);const a=document.getElementById('ar'+i);b.classList.toggle('open');a.style.transform=b.classList.contains('open')?'rotate(180deg)':'';}
+const WORKER='https://flat-sunset-80bc.cclairy36.workers.dev';
+async function generate(){
+  const job=document.getElementById('s-job').value.trim();
+  const age=parseInt(document.getElementById('s-age').value)||25;
+  const care=document.getElementById('s-care').value.trim()||'职业与生活的平衡';
+  if(!job){document.getElementById('s-job').focus();return;}
+  const ageIn2049=age+25;
+  const btn=document.getElementById('gen-btn');btn.disabled=true;btn.textContent='生成中...';
+  const out=document.getElementById('sc-out');out.className='sc-out show';
+  out.innerHTML=`<div class="sc-loading">正在推演你的2049年<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>`;
+  document.getElementById('retry-btn').style.display='none';
+  const prompt=`你是《2049：未来10000天的可能》这本书的世界观解读者。凯文·凯利在书中描绘了一个被AI、镜像世界（智能眼镜取代手机）、脑机接口、扁平化组织、定制化医疗、互见性所深刻塑造的未来。请根据书中的世界观，为以下这个人写一段「2049年某个普通早晨」的场景描述：职业：${job}，2049年年龄：${ageIn2049}岁（现在${age}岁），最关心的事：${care}。要求：250字以内，有具体画面感，自然融入书中至少2个核心概念，用第二人称「你」叙述，语气克制带文学质感，只输出场景本身。`;
+  try{
+    const res=await fetch(WORKER,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,messages:[{role:'user',content:prompt}]})});
+    if(!res.ok)throw new Error(`HTTP ${res.status}`);
+    const data=await res.json();
+    if(data.error)throw new Error(data.error.message||'生成失败');
+    const text=data.content?.find(b=>b.type==='text')?.text||'';
+    out.innerHTML=`<div class="sc-hdr"><span class="sc-name">${job}，${ageIn2049}岁</span><span class="sc-year">· 2049年某个普通的早晨</span></div><div class="sc-body">${text}</div>`;
+    document.getElementById('retry-btn').style.display='block';
+  }catch(e){out.innerHTML=`<div class="sc-err">生成失败：${e.message}。请稍后重试。</div>`;}
+  btn.disabled=false;btn.textContent='生成我的2049年 →';
+}
+function resetScene(){document.getElementById('sc-out').className='sc-out';document.getElementById('retry-btn').style.display='none';['s-job','s-age','s-care'].forEach(id=>document.getElementById(id).value='');document.getElementById('s-job').focus();}
+</script>
+</body>
+</html>
