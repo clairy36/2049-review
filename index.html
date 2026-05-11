@@ -406,10 +406,8 @@ async function generate() {
   try {
     const res = await fetch(WORKER, {
       method: 'POST',
-      mode: 'cors',
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
