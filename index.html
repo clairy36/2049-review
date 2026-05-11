@@ -130,11 +130,11 @@ input[type=range]{width:100%;accent-color:var(--gold);cursor:pointer;margin:3px 
     <div class="row2">
       <div class="fr">
         <div class="fl">你的职业</div>
-        <input class="fi" id="s-job" placeholder="如：律师、老师、程序员...">
+        <input class="fi" id="s-job" >
       </div>
       <div class="fr">
         <div class="fl">现在的年龄</div>
-        <input class="fi" id="s-age" type="number" placeholder="如：25" min="10" max="80">
+        <input class="fi" id="s-age" type="number" min="10" max="80">
       </div>
     </div>
     <div class="fr">
@@ -392,28 +392,67 @@ async function generate() {
 
 「2049年的你说：……」`;
 
+  // 显示流式输出容器
+  out.innerHTML = `
+    <div class="sc-hdr">
+      <span class="sc-name">${job}，${ageIn2049}岁</span>
+      <span class="sc-year">· ${sceneLabel} · 2049年</span>
+    </div>
+    <div class="sc-body" id="sc-stream"></div>`;
+
   try {
     const res = await fetch(WORKER, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({model:'claude-sonnet-4-20250514', max_tokens:800, messages:[{role:'user', content:prompt}]})
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 800,
+        stream: true,
+        messages: [{role: 'user', content: prompt}]
+      })
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    if (data.error) throw new Error(data.error.message || '生成失败');
-    const full = data.content?.find(b => b.type === 'text')?.text || '';
 
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    const streamEl = document.getElementById('sc-stream');
+    let full = '';
+    let buffer = '';
+
+    while (true) {
+      const {done, value} = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, {stream: true});
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const data = line.slice(6).trim();
+        if (data === '[DONE]') continue;
+        try {
+          const json = JSON.parse(data);
+          const delta = json.delta?.text || '';
+          if (delta) {
+            full += delta;
+            // 实时显示，隐藏结尾引用部分
+            const displayText = full.replace(/「2049年的你说[：:][\s\S]*/, '').trim();
+            streamEl.textContent = displayText;
+          }
+        } catch {}
+      }
+    }
+
+    // 生成完毕，解析引用
     const quoteMatch = full.match(/「2049年的你说[：:]\s*([\s\S]+?)」/);
     const quote = quoteMatch ? quoteMatch[1].trim() : '';
     const sceneText = full.replace(/「2049年的你说[：:][\s\S]+?」/, '').trim();
-
-    out.innerHTML = `
-      <div class="sc-hdr">
-        <span class="sc-name">${job}，${ageIn2049}岁</span>
-        <span class="sc-year">· ${sceneLabel} · 2049年</span>
-      </div>
-      <div class="sc-body">${sceneText}</div>
-      ${quote ? `<div class="sc-quote"><strong>2049年的你说</strong>${quote}</div>` : ''}`;
+    streamEl.textContent = sceneText;
+    if (quote) {
+      const quoteEl = document.createElement('div');
+      quoteEl.className = 'sc-quote';
+      quoteEl.innerHTML = `<strong>2049年的你说</strong>${quote}`;
+      out.appendChild(quoteEl);
+    }
     document.getElementById('retry-btn').style.display = 'block';
   } catch(e) {
     out.innerHTML = `<div class="sc-err">生成失败：${e.message}。请稍后重试。</div>`;
