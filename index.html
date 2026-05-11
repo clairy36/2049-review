@@ -396,9 +396,6 @@ async function generate() {
 
 「2049年的你说：……」`;
 
-  // 手机端降级为非流式，桌面端流式
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
   out.innerHTML = `
     <div class="sc-hdr">
       <span class="sc-name">${job}，${ageIn2049}岁</span>
@@ -407,80 +404,32 @@ async function generate() {
     <div class="sc-body" id="sc-stream"></div>`;
 
   try {
-    if (isMobile) {
-      // 非流式：等待完整响应
-      const res = await fetch(WORKER, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 800,
-          stream: false,
-          messages: [{role: 'user', content: prompt}]
-        })
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      if (data.error) throw new Error(data.error.message || '生成失败');
-      const full = data.content?.find(b => b.type === 'text')?.text || '';
-      const quoteMatch = full.match(/「2049年的你说[：:]\s*([\s\S]+?)」/);
-      const quote = quoteMatch ? quoteMatch[1].trim() : '';
-      const sceneText = full.replace(/「2049年的你说[：:][\s\S]+?」/, '').trim();
-      document.getElementById('sc-stream').textContent = sceneText;
-      if (quote) {
-        const quoteEl = document.createElement('div');
-        quoteEl.className = 'sc-quote';
-        quoteEl.innerHTML = `<strong>2049年的你说</strong>${quote}`;
-        out.appendChild(quoteEl);
-      }
-    } else {
-      // 流式：打字机效果
-      const res = await fetch(WORKER, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 800,
-          stream: true,
-          messages: [{role: 'user', content: prompt}]
-        })
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      const streamEl = document.getElementById('sc-stream');
-      let full = '';
-      let buffer = '';
-      while (true) {
-        const {done, value} = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, {stream: true});
-        const lines = buffer.split('\n');
-        buffer = lines.pop();
-        for (const line of lines) {
-          if (!line.startsWith('data: ')) continue;
-          const data = line.slice(6).trim();
-          if (data === '[DONE]') continue;
-          try {
-            const json = JSON.parse(data);
-            const delta = json.delta?.text || '';
-            if (delta) {
-              full += delta;
-              streamEl.textContent = full.replace(/「2049年的你说[：:][\s\S]*/, '').trim();
-            }
-          } catch {}
-        }
-      }
-      const quoteMatch = full.match(/「2049年的你说[：:]\s*([\s\S]+?)」/);
-      const quote = quoteMatch ? quoteMatch[1].trim() : '';
-      const sceneText = full.replace(/「2049年的你说[：:][\s\S]+?」/, '').trim();
-      streamEl.textContent = sceneText;
-      if (quote) {
-        const quoteEl = document.createElement('div');
-        quoteEl.className = 'sc-quote';
-        quoteEl.innerHTML = `<strong>2049年的你说</strong>${quote}`;
-        out.appendChild(quoteEl);
-      }
+    const res = await fetch(WORKER, {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 800,
+        messages: [{role: 'user', content: prompt}]
+      })
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message || '生成失败');
+    const full = data.content?.find(b => b.type === 'text')?.text || '';
+    const quoteMatch = full.match(/「2049年的你说[：:]\s*([\s\S]+?)」/);
+    const quote = quoteMatch ? quoteMatch[1].trim() : '';
+    const sceneText = full.replace(/「2049年的你说[：:][\s\S]+?」/, '').trim();
+    document.getElementById('sc-stream').textContent = sceneText;
+    if (quote) {
+      const quoteEl = document.createElement('div');
+      quoteEl.className = 'sc-quote';
+      quoteEl.innerHTML = `<strong>2049年的你说</strong>${quote}`;
+      out.appendChild(quoteEl);
     }
     document.getElementById('retry-btn').style.display = 'block';
   } catch(e) {
