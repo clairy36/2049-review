@@ -418,7 +418,9 @@ async function generate() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     if (data.error) throw new Error(data.error.message || '生成失败');
-    const full = data.content?.find(b => b.type === 'text')?.text || '';
+    const full = data.content?.find(b => b.type === 'text')?.text 
+      || data.choices?.[0]?.message?.content 
+      || JSON.stringify(data);
     const quoteMatch = full.match(/「2049年的你说[：:]\s*([\s\S]+?)」/);
     const quote = quoteMatch ? quoteMatch[1].trim() : '';
     const sceneText = full.replace(/「2049年的你说[：:][\s\S]+?」/, '').trim();
