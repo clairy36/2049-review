@@ -331,7 +331,7 @@ SCENES.forEach(s => {
   chipGrid.appendChild(chip);
 });
 
-const WORKER = 'https://1432111674-jh2m54sv0y.ap-shanghai.tencentscf.com';
+const WORKER = 'https://proxy-qsdovmuadq.cn-shanghai.fcapp.run';
 
 async function generate() {
   const job = document.getElementById('s-job').value.trim();
@@ -406,21 +406,13 @@ async function generate() {
   try {
     const res = await fetch(WORKER, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        max_tokens: 800,
-        messages: [{role: 'user', content: prompt}]
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-    if (data.error) throw new Error(data.error.message || '生成失败');
-    const full = data.content?.find(b => b.type === 'text')?.text 
-      || data.choices?.[0]?.message?.content 
-      || JSON.stringify(data);
+    if (data.error) throw new Error(data.error);
+    const full = data.text || '';
     const quoteMatch = full.match(/「2049年的你说[：:]\s*([\s\S]+?)」/);
     const quote = quoteMatch ? quoteMatch[1].trim() : '';
     const sceneText = full.replace(/「2049年的你说[：:][\s\S]+?」/, '').trim();
