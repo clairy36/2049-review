@@ -331,7 +331,7 @@ SCENES.forEach(s => {
   chipGrid.appendChild(chip);
 });
 
-const WORKER = '/api/proxy'; // 替换为你的 DeepSeek API Key
+const WORKER = '/api/proxy';
 
 async function generate() {
   const job = document.getElementById('s-job').value.trim();
@@ -404,22 +404,15 @@ async function generate() {
     <div class="sc-body" id="sc-stream"></div>`;
 
   try {
-    const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
+    const res = await fetch(WORKER, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${DEEPSEEK_KEY}`
-      },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        max_tokens: 800,
-        messages: [{ role: 'user', content: prompt }]
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-    if (data.error) throw new Error(data.error.message || '生成失败');
-    const full = data.choices?.[0]?.message?.content || '';
+    if (data.error) throw new Error(data.error);
+    const full = data.text || '';
     const quoteMatch = full.match(/「2049年的你说[：:]\s*([\s\S]+?)」/);
     const quote = quoteMatch ? quoteMatch[1].trim() : '';
     const sceneText = full.replace(/「2049年的你说[：:][\s\S]+?」/, '').trim();
